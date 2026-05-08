@@ -203,7 +203,7 @@ table.dt td:first-child{font-weight:600;color:var(--text)}
   <!-- RANKINGS -->
   <section class="sec"><h3>Ranking dos Players</h3><p>Classificação geral por touchpoints e performance ponderada</p></section>
   <div class="chart-grid">
-    <div class="cc full"><h4><span class="dot" style="background:#1a1a2e"></span>Ranking de Performance</h4><div id="rkTable" class="table-wrapper"></div></div>
+    <div class="cc full"><h4><span class="dot" style="background:#1a1a2e"></span>Ranking Geral de Performance</h4><canvas id="rkBarChart"></canvas><div id="rkTable" class="table-wrapper" style="margin-top:16px"></div></div>
     <div class="cc"><h4><span class="dot" style="background:#c9a96e"></span>Performance por Canal</h4><canvas id="rkChart"></canvas></div>
     <div class="cc"><h4><span class="dot" style="background:#c9a96e"></span>Radar Multicanal</h4><canvas id="rkRadar"></canvas></div>
   </div>
@@ -279,6 +279,12 @@ DATA = {
       {"p": "Imobiliaria Cidade dos Lagos", "s": 73, "g": 18, "ig": 6724, "fb": 295, "li": 0, "yt": 0, "tk": 0, "r": 7110},
       {"p": "Immob Imóveis", "s": 61, "g": 36, "ig": 21, "fb": 294, "li": 0, "yt": 93, "tk": 0, "r": 505},
       {"p": "Kaneko Imóveis", "s": 61, "g": 198, "ig": 30, "fb": 9042, "li": 173, "yt": 372, "tk": 0, "r": 17968}
+    ],
+    "rankingGeral": [
+      {"p": "Kaneko Imóveis", "v": 289},
+      {"p": "Imobiliaria Cidade dos Lagos", "v": 6814},
+      {"p": "DalPosso Imóveis", "v": 257},
+      {"p": "Immob Imóveis", "v": 118}
     ],
     "performance": [
       {"p": "Imobiliaria Cidade dos Lagos", "s": 73, "g": 18, "ig": 6724, "fb": 295, "li": 0, "yt": 0, "tk": 0, "r": 438},
@@ -417,12 +423,16 @@ function render() {
   renderBarChart('cSEO', seo.seo);
   renderBarChart('cGMN', so.gmn);
 
-  // -- Ranking table --
-  var rkItems = seo.touchpoints.filter(function(d){return visiblePlayers[d.p];}).sort(function(a,b){return b.r-a.r;});
-  var rkHtml = '<table class="rk"><thead><tr><th>Player</th><th>SEO</th><th>GMN</th><th>IG</th><th>FB</th><th>LI</th><th>YT</th><th>Total</th></tr></thead><tbody>';
+  // -- Ranking table with Geral Ranking --
+  var rkGeralMap = {};
+  seo.rankingGeral.forEach(function(d){rkGeralMap[d.p]=d.v;});
+
+  var rkItems = seo.touchpoints.filter(function(d){return visiblePlayers[d.p];}).sort(function(a,b){return rkGeralMap[b.p]-rkGeralMap[a.p];});
+  var rkHtml = '<table class="rk"><thead><tr><th>Posição</th><th>Player</th><th>SEO</th><th>GMN</th><th>IG</th><th>FB</th><th>Ranking Geral</th></tr></thead><tbody>';
   rkItems.forEach(function(it, i) {
+    var rkGeral = rkGeralMap[it.p];
     var rc = i<3?' class="r'+(i+1)+'"':'';
-    rkHtml += '<tr><td'+rc+'>'+(i+1)+'. '+it.p+'</td><td>'+it.s+'</td><td>'+it.g+'</td><td>'+it.ig+'</td><td>'+formatBigNumber(it.fb)+'</td><td>'+it.li+'</td><td>'+it.yt+'</td><td><strong>'+formatBigNumber(it.r)+'</strong></td></tr>';
+    rkHtml += '<tr><td'+rc+'>#'+(i+1)+'</td><td'+rc+'>'+(i+1)+'. '+it.p+'</td><td>'+it.s+'</td><td>'+it.g+'</td><td>'+it.ig+'</td><td>'+formatBigNumber(it.fb)+'</td><td><strong>'+rkGeral.toLocaleString('pt-BR')+'</strong></td></tr>';
   });
   rkHtml += '</tbody></table>';
   document.getElementById('rkTable').innerHTML = rkHtml;
@@ -465,6 +475,24 @@ function render() {
         responsive:true,maintainAspectRatio:true,animation:{duration:600},
         plugins:{legend:{labels:{color:'#555',font:{size:9,family:'Inter'},boxWidth:10,padding:10},position:'bottom'}},
         scales:{r:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.06)'},angleLines:{color:'rgba(0,0,0,0.06)'},pointLabels:{color:'#555',font:{size:9,family:'Inter'}},ticks:{color:'#999',backdropColor:'transparent',font:{size:8},maxTicksLimit:5}}}
+      }
+    });
+  }
+
+  // -- Ranking Geral Bar Chart --
+  var rkGeralData = seo.rankingGeral.filter(function(d){return visiblePlayers[d.p];}).sort(function(a,b){return b.v-a.v;});
+  if (charts.rkBar) charts.rkBar.destroy();
+  if (rkGeralData.length > 0) {
+    charts.rkBar = new Chart(document.getElementById('rkBarChart').getContext('2d'), {
+      type:'bar',
+      data:{
+        labels:rkGeralData.map(function(d){return d.p;}),
+        datasets:[{label:'Ranking Geral',data:rkGeralData.map(function(d){return d.v;}),backgroundColor:rkGeralData.map(function(d){return getFullColor(d.p);}),borderRadius:4}]
+      },
+      options:{
+        indexAxis:'y',responsive:true,maintainAspectRatio:true,animation:{duration:600},
+        plugins:{legend:{display:false},tooltip:{callback:{label:function(ctx){return 'Pontuação: ' + ctx.parsed.x.toLocaleString('pt-BR');}}}},
+        scales:{x:{ticks:{color:tickC,font:{size:9,family:'Inter'}},grid:{color:gridC},startAtZero:true},y:{ticks:{color:tickC,font:{size:9,family:'Inter'}},grid:{color:gridC}}}
       }
     });
   }
