@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Dashboard Kaneko Imóveis — Análise integrada de desempenho em redes sociais, SEO e métricas técnicas">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Dashboard Kaneko Imóveis — Performance Digital</title>
+  <link rel="icon" href="Logo Kaneko PNG (1).png" type="image/png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#1a1a2e;--primary-dark:#16213e;--primary-light:#0f3460;
+  --accent:#c9a96e;--accent-light:#d4b87a;
+  --bg-start:#f0f0f0;--bg-mid:#f8f8f8;--bg-end:#ffffff;
+  --text:#1f2937;--text-muted:#6b7280;--text-light:#9ca3af;
+  --border:#e5e7eb;--border-light:#f3f4f6;
+  --white:#ffffff;--card-bg:#ffffff;
+  --shadow:0 1px 3px rgba(0,0,0,.05);--shadow-hover:0 4px 14px rgba(0,0,0,.07);
+  --radius:10px;--radius-sm:7px;
+  --ig:#e1306c;--fb:#1877f2;--li:#0a66c2;--yt:#ff0000;--tk:#000000;
+  --seo:#fbbf24;--gmn:#d97706;
+  --penha:#c9a96e;--muted:#9ca3af;
+  --success:#10b981;--danger:#dc2626;--info:#3b82f6;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --text:#f9fafb;--text-muted:#d1d5db;--text-light:#9ca3af;
+    --border:#374151;--border-light:#1f2937;
+    --bg-start:#0f172a;--bg-mid:#1e293b;--bg-end:#0a0a0a;
+    --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-hover:0 4px 14px rgba(0,0,0,.4);
+    --card-bg:#1e293b;--white:#1e293b;
+  }
+}
+html{font-family:'Inter',-apple-system,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body{font-family:inherit;background:linear-gradient(180deg,var(--bg-start) 0%,var(--bg-mid) 40%,var(--bg-end) 100%);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Poppins',sans-serif;font-weight:600;line-height:1.3}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;z-index:9999;background:var(--bg-start);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s,visibility .5s}
+.loading-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{margin-top:16px;color:var(--text-muted);font-size:.85rem}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.anim-fadeUp{animation:fadeUp .5s ease both}
+.anim-scaleIn{animation:scaleIn .4s ease both}
+.stagger-1{animation-delay:.05s}.stagger-2{animation-delay:.1s}.stagger-3{animation-delay:.15s}
+.stagger-4{animation-delay:.2s}.stagger-5{animation-delay:.25s}.stagger-6{animation-delay:.3s}
+.stagger-7{animation-delay:.35s}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:12px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);transition:background .3s,border-color .3s}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-logo{width:42px;height:36px;border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--white)}
+.brand-logo img{width:100%;height:100%;object-fit:contain;display:block}
+.brand h1{font-size:1.1rem;color:var(--text)}
+.brand h1 span{color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:8px}
+.btn-export{padding:6px 14px;border-radius:8px;border:1.5px solid var(--accent);background:transparent;color:var(--accent);font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:5px}
+.btn-export:hover{background:var(--accent);color:var(--white)}
+.btn-export svg{width:14px;height:14px}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 40%,var(--primary-light) 100%);padding:50px 32px 46px;text-align:center;color:var(--white);position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-60%;right:-20%;width:500px;height:500px;background:radial-gradient(circle,rgba(201,169,110,.12),transparent 70%)}
+.hero h2{font-size:1.7rem;font-weight:700;position:relative;z-index:1}
+.hero p{font-size:.88rem;color:rgba(255,255,255,.65);margin-top:4px;position:relative;z-index:1}
+
+/* SECTIONS */
+.sec{padding:28px 32px 0}
+.sec h3{font-size:1.05rem;color:var(--text)}
+.sec p{font-size:.78rem;color:var(--text-muted);margin-top:2px}
+
+/* KPI STRIP */
+.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:14px;padding:28px 32px 0}
+.kpi{background:var(--card-bg);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);border:1px solid var(--border);border-left:4px solid var(--border);display:flex;align-items:flex-start;gap:12px;transition:box-shadow .2s,transform .2s;opacity:0;animation:fadeUp .4s ease both}
+.kpi:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px)}
+.kpi.blue{border-left-color:var(--primary)}.kpi.amber{border-left-color:var(--accent)}.kpi.green{border-left-color:var(--success)}.kpi.red{border-left-color:#dc2626}
+.kpi .ico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kpi .ico svg{width:20px;height:20px}
+.kpi .ico.bl{background:#eff6ff;color:var(--primary)}.kpi .ico.am{background:#fffbeb;color:var(--accent)}.kpi .ico.gr{background:#ecfdf5;color:var(--success)}.kpi .ico.rd{background:#fef2f2;color:#dc2626}
+.kpi .bd{flex:1}
+.kpi .lb{font-size:.68rem;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.kpi .vl{font-size:1.45rem;font-weight:700;color:var(--text);margin-top:2px}
+.kpi .sb{font-size:.66rem;color:var(--text-light);margin-top:2px}
+
+/* PENHA POSITION CARDS */
+.penha-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;padding:20px 32px 0}
+.pp-card{border-radius:var(--radius);padding:16px;text-align:center;color:var(--white);position:relative;overflow:hidden;transition:transform .2s;opacity:0;animation:scaleIn .4s ease both}
+.pp-card:hover{transform:scale(1.03)}
+.pp-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.08),transparent)}
+.pp-card .platform{font-size:.6rem;text-transform:uppercase;letter-spacing:.8px;opacity:.8;position:relative;z-index:1}
+.pp-card .pos{font-size:1.8rem;font-weight:800;font-family:'Poppins';position:relative;z-index:1;line-height:1}
+.pp-card .total{font-size:.62rem;opacity:.7;position:relative;z-index:1;margin-top:2px}
+
+/* CHART GRID */
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:16px;padding:16px 32px 16px}
+.cc{background:var(--card-bg);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);border:1px solid var(--border);transition:box-shadow .2s;opacity:0;animation:fadeUp .5s ease both}
+.cc:hover{box-shadow:var(--shadow-hover)}
+.cc h4{font-size:.8rem;font-weight:500;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:6px;justify-content:space-between}
+.cc .dot{width:8px;height:8px;border-radius:4px;flex-shrink:0}
+.cc canvas{max-height:330px}
+.cc.full{grid-column:1/-1}
+.chart-actions{display:flex;gap:4px}
+.btn-icon{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--white);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:.8rem}
+.btn-icon:hover{border-color:var(--accent);color:var(--accent);background:#fffbeb}
+
+/* RANKING TABLE */
+table.rk{width:100%;border-collapse:collapse;font-size:.78rem;background:var(--card-bg);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+table.rk th{background:#f0f4ff;color:#4b5563;text-transform:uppercase;font-size:.63rem;padding:10px 8px;letter-spacing:.5px;font-weight:500;border-bottom:2px solid var(--border);text-align:center}
+table.rk th:first-child{text-align:left}
+table.rk td{padding:8px 8px;text-align:center;color:#4b5563;border-bottom:1px solid var(--border-light)}
+table.rk td:first-child{text-align:left;font-weight:600;color:var(--text)}
+table.rk tr:hover{background:#f0f4ff}
+.r1{color:var(--accent)!important}.r2{color:var(--text-light)!important}.r3{color:#b45309!important}
+.table-wrapper{overflow-x:auto;border-radius:var(--radius)}
+@media(prefers-color-scheme:dark){
+  table.rk th{background:#1e293b;color:var(--text-muted)}
+  table.rk tr:hover{background:#1e293b}
+  .header{background:rgba(15,23,42,.92)}
+}
+
+/* DATA TABLES */
+.dt-sec{padding:0 32px 14px}
+.dt-sec h4{font-size:.88rem;font-weight:600;margin-bottom:6px;padding-bottom:5px;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--border-light);color:var(--text)}
+table.dt{width:100%;border-collapse:collapse;font-size:.78rem;background:var(--card-bg);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin-bottom:12px}
+table.dt th{background:var(--border-light);color:var(--text-muted);font-weight:500;font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;padding:9px 14px;text-align:left;border-bottom:1px solid var(--border)}
+table.dt td{padding:8px 14px;border-bottom:1px solid var(--border-light);color:var(--text)}
+table.dt tr:last-child td{border-bottom:none}
+table.dt tr:hover{background:var(--border-light)}
+table.dt td:first-child{font-weight:600;color:var(--text)}
+
+/* FOOTER */
+.footer{background:#1e293b;color:#94a3b8;text-align:center;padding:22px 16px;font-size:.76rem;margin-top:12px}
+@media(prefers-color-scheme:dark){.footer{background:#0f172a;color:#64748b}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1e293b;color:#fff;padding:12px 20px;border-radius:10px;font-size:.8rem;z-index:9998;animation:fadeUp .3s ease;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.toast.success{border-left:4px solid var(--success)}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  .hero{padding:30px 16px 26px}
+  .header{padding:10px 16px;flex-wrap:wrap;gap:8px}
+  .chart-grid,.kpi-strip,.penha-strip,.sec,.dt-sec{padding-left:16px;padding-right:16px}
+  .chart-grid{grid-template-columns:1fr}
+}
+
+/* ACCESSIBILITY */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip-link{position:absolute;top:-40px;left:0;background:var(--primary);color:var(--white);padding:8px;z-index:100;transition:top .3s}
+.skip-link:focus{top:0}
+*:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Pular para o conteúdo</a>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loader">
+  <div class="spinner"></div>
+  <div class="loading-text">Carregando dashboard...</div>
+</div>
+
+<!-- HEADER -->
+<header class="header" role="banner">
+  <div class="brand">
+    <div class="brand-logo" aria-hidden="true"><img src="Logo Kaneko PNG (1).png" alt="Kaneko Imóveis"></div>
+    <h1>Dashboard <span>Kaneko</span></h1>
+  </div>
+  <div class="header-right">
+    <button class="btn-export" id="btnExport" title="Exportar dados em CSV">
+      <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v10m0 0l-3-3m3 3l3-3M4 15h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      CSV
+    </button>
+  </div>
+</header>
+
+<main id="main">
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-title">
+    <h2 id="hero-title">Kaneko Imóveis</h2>
+    <p>Análise comparativa de desempenho digital — 2026</p>
+  </section>
+
+  <!-- KPIs -->
+  <div class="kpi-strip" id="kpiStrip" role="region" aria-label="KPIs principais"></div>
+
+  <!-- PENHA POSITION CARDS -->
+  <div class="penha-strip" id="penhaStrip" role="region" aria-label="Posição Kaneko por plataforma"></div>
+
+  <!-- PERFORMANCE CHARTS -->
+  <section class="sec"><h3 id="secTitle">Performance por Plataforma</h3><p>Comparativo entre players em cada rede social</p></section>
+  <div class="chart-grid" id="chartGrid" role="region" aria-label="Gráficos de performance"></div>
+
+  <!-- RANKINGS -->
+  <section class="sec"><h3>Ranking dos Players</h3><p>Classificação geral por touchpoints e performance ponderada</p></section>
+  <div class="chart-grid">
+    <div class="cc full"><h4><span class="dot" style="background:#1a1a2e"></span>Ranking de Performance</h4><div id="rkTable" class="table-wrapper"></div></div>
+    <div class="cc"><h4><span class="dot" style="background:#c9a96e"></span>Performance por Canal</h4><canvas id="rkChart"></canvas></div>
+    <div class="cc"><h4><span class="dot" style="background:#c9a96e"></span>Radar Multicanal</h4><canvas id="rkRadar"></canvas></div>
+  </div>
+
+  <!-- DATA TABLES -->
+  <section class="sec"><h3>Dados Tabulados</h3><p>Todos os dados brutos por plataforma</p></section>
+  <div id="dataTables" role="region" aria-label="Tabelas de dados"></div>
+</main>
+
+<footer class="footer">&copy; 2026 Kaneko Imóveis — Dashboard Performance Digital</footer>
+
+<script>
+var charts = {};
+var DATA = null;
+
+/* ===================== DATA ===================== */
+DATA = {
+  "meta": {
+    "title": "Dashboard Kaneko Imóveis — 2026",
+    "description": "Análise comparativa de desempenho digital entre players do setor imobiliário",
+    "month": "2026",
+    "monthLabel": "2026",
+    "players": ["Kaneko Imóveis", "Imobiliaria Cidade dos Lagos", "DalPosso Imóveis", "Immob Imóveis"],
+    "playerColors": {
+      "Kaneko Imóveis": "#c9a96e",
+      "Imobiliaria Cidade dos Lagos": "#9ca3af",
+      "DalPosso Imóveis": "#9ca3af",
+      "Immob Imóveis": "#9ca3af"
+    }
+  },
+  "social": {
+    "ig": [
+      {"p": "Imobiliaria Cidade dos Lagos", "v": 6724},
+      {"p": "Immob Imóveis", "v": 21},
+      {"p": "DalPosso Imóveis", "v": 17},
+      {"p": "Kaneko Imóveis", "v": 30}
+    ],
+    "fb": [
+      {"p": "Kaneko Imóveis", "v": 9042},
+      {"p": "DalPosso Imóveis", "v": 8947},
+      {"p": "Imobiliaria Cidade dos Lagos", "v": 295},
+      {"p": "Immob Imóveis", "v": 294}
+    ],
+    "li": [
+      {"p": "Kaneko Imóveis", "v": 173},
+      {"p": "Imobiliaria Cidade dos Lagos", "v": 0},
+      {"p": "DalPosso Imóveis", "v": 17},
+      {"p": "Immob Imóveis", "v": 0}
+    ],
+    "yt": [
+      {"p": "Immob Imóveis", "v": 93},
+      {"p": "DalPosso Imóveis", "v": 44},
+      {"p": "Kaneko Imóveis", "v": 372},
+      {"p": "Imobiliaria Cidade dos Lagos", "v": 0}
+    ],
+    "tk": [],
+    "gmn": [
+      {"p": "Kaneko Imóveis", "v": 198},
+      {"p": "DalPosso Imóveis", "v": 145},
+      {"p": "Immob Imóveis", "v": 36},
+      {"p": "Imobiliaria Cidade dos Lagos", "v": 18}
+    ]
+  },
+  "seo": {
+    "seo": [
+      {"p": "DalPosso Imóveis", "v": 94},
+      {"p": "Imobiliaria Cidade dos Lagos", "v": 73},
+      {"p": "Kaneko Imóveis", "v": 61},
+      {"p": "Immob Imóveis", "v": 61}
+    ],
+    "touchpoints": [
+      {"p": "DalPosso Imóveis", "s": 94, "g": 145, "ig": 17, "fb": 8947, "li": 17, "yt": 44, "tk": 0, "r": 17250},
+      {"p": "Imobiliaria Cidade dos Lagos", "s": 73, "g": 18, "ig": 6724, "fb": 295, "li": 0, "yt": 0, "tk": 0, "r": 7110},
+      {"p": "Immob Imóveis", "s": 61, "g": 36, "ig": 21, "fb": 294, "li": 0, "yt": 93, "tk": 0, "r": 505},
+      {"p": "Kaneko Imóveis", "s": 61, "g": 198, "ig": 30, "fb": 9042, "li": 173, "yt": 372, "tk": 0, "r": 17968}
+    ],
+    "performance": [
+      {"p": "Imobiliaria Cidade dos Lagos", "s": 73, "g": 18, "ig": 6724, "fb": 295, "li": 0, "yt": 0, "tk": 0, "r": 438},
+      {"p": "Immob Imóveis", "s": 61, "g": 36, "ig": 21, "fb": 294, "li": 0, "yt": 93, "tk": 0, "r": 405},
+      {"p": "DalPosso Imóveis", "s": 94, "g": 145, "ig": 17, "fb": 17, "li": 17, "yt": 44, "tk": 0, "r": 334},
+      {"p": "Kaneko Imóveis", "s": 61, "g": 198, "ig": 30, "fb": 9042, "li": 173, "yt": 372, "tk": 0, "r": 272}
+    ]
+  }
+};
+
+var visiblePlayers = {};
+DATA.meta.players.forEach(function(p) { visiblePlayers[p] = true; });
+
+/* ===================== HELPERS ===================== */
+function getColor(p) { return DATA.meta.playerColors[p] || '#9ca3af'; }
+function getFullColor(p) { return p === 'Kaneko Imóveis' ? '#c9a96e' : getColor(p); }
+
+function posRaw(arr) {
+  var filtered = arr.filter(function(d) { return visiblePlayers[d.p]; });
+  var sorted = filtered.slice().sort(function(a,b){return b.v-a.v;});
+  var idx = sorted.findIndex(function(x){return x.p==='Kaneko Imóveis';});
+  return {pos: idx+1, total: sorted.length, score: idx>=0?sorted[idx].v:'-'};
+}
+
+function findRankPerformanceIn(rtArr) {
+  var filtered = rtArr.filter(function(d){return visiblePlayers[d.p];});
+  var sorted = filtered.slice().sort(function(a,b){return b.r-a.r;});
+  var idx = sorted.findIndex(function(x){return x.p==='Kaneko Imóveis';});
+  return {pos: idx+1, total: sorted.length};
+}
+
+function penhaRaw(arr) {
+  var found = arr.find(function(d){ return d.p === 'Kaneko Imóveis'; });
+  return found ? found.v : 0;
+}
+
+function bestFirst(arr) { return arr.filter(function(d){return visiblePlayers[d.p];}).sort(function(a,b){return b.v-a.b;}); }
+
+function formatBigNumber(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return n.toLocaleString('pt-BR', {maximumFractionDigits: 2});
+}
+
+/* ===================== RENDER ===================== */
+function render() {
+  var so = DATA.social;
+  var seo = DATA.seo;
+
+  // -- KPIs --
+  var pmIG = penhaRaw(so.ig);
+  var pmYT = penhaRaw(so.yt);
+  var pmTP = findRankPerformanceIn(seo.touchpoints);
+  var pmSEO = penhaRaw(seo.seo);
+  var pmGMN = penhaRaw(so.gmn);
+
+  document.getElementById('kpiStrip').innerHTML =
+    '<div class="kpi blue stagger-1"><div class="ico bl"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.4"/><circle cx="11" cy="11" r="3.5" stroke="currentColor" stroke-width="1.1"/><circle cx="16" cy="6" r="1" fill="currentColor"/></svg></div><div class="bd"><div class="lb">Kaneko Imóveis — Instagram</div><div class="vl">'+pmIG.toLocaleString('pt-BR')+'</div><div class="sb">Performance</div></div></div>'+
+    '<div class="kpi amber stagger-2"><div class="ico am"><svg viewBox="0 0 22 22" fill="none"><path d="M11 3L15 8H7L11 3Z" fill="currentColor"/><rect x="5" y="9" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.2"/></svg></div><div class="bd"><div class="lb">Kaneko Imóveis — Google Meu Negócio</div><div class="vl">'+pmGMN+'</div><div class="sb">Performance</div></div></div>'+
+    '<div class="kpi green stagger-3"><div class="ico gr"><svg viewBox="0 0 22 22" fill="none"><rect x="3" y="3" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.2"/><line x1="7" y1="13" x2="10" y2="16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="10" y1="16" x2="15" y2="9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div><div class="bd"><div class="lb">Kaneko Imóveis — Posição Geral</div><div class="vl">'+pmTP.pos+'º</div><div class="sb">de '+pmTP.total+' players</div></div></div>'+
+    '<div class="kpi red stagger-4"><div class="ico rd"><svg viewBox="0 0 20 20" fill="none" width="20" height="20"><text x="10" y="14" text-anchor="middle" fill="currentColor" font-size="8" font-weight="700">%</text></svg></div><div class="bd"><div class="lb">Kaneko Imóveis — Site</div><div class="vl">'+pmSEO+'</div><div class="sb">Performance Geral</div></div></div>';
+
+  // -- Kaneko position cards --
+  var igP = posRaw(so.ig), fbP = posRaw(so.fb), liP = posRaw(so.li), ytP = posRaw(so.yt), tkP = posRaw(so.tk || []), seP = posRaw(seo.seo), gmnP = posRaw(so.gmn), tpP = findRankPerformanceIn(seo.touchpoints);
+
+  var ppColors = ['#e1306c','#1877f2','#0a66c2','#ff0000','#fbbf24','#d97706'];
+  var ppLabels = ['Instagram','Facebook','LinkedIn','YouTube','SEO','GMN'];
+  var ppData = [igP,fbP,liP,ytP,seP,gmnP];
+
+  var ppHtml = '<div class="penha-strip">';
+  for (var i=0;i<ppLabels.length;i++){
+    var d = ppData[i];
+    ppHtml+='<div class="pp-card stagger-'+(i+1)+'" style="background:'+ppColors[i]+'"><div class="platform">'+ppLabels[i]+'</div><div class="pos">'+d.pos+'º</div><div class="total">de '+d.total+' players</div></div>';
+  }
+  ppHtml+='</div>';
+  document.getElementById('penhaStrip').innerHTML = ppHtml;
+
+  // -- Chart Grid --
+  var grid = document.getElementById('chartGrid');
+  var platformDefs = [
+    {id:'cIG',label:'Instagram',color:'#e1306c',key:'ig',format:'perf'},
+    {id:'cFB',label:'Facebook',color:'#1877f2',key:'fb',format:'num'},
+    {id:'cLI',label:'LinkedIn',color:'#0a66c2',key:'li',format:'num'},
+    {id:'cYT',label:'YouTube',color:'#ff0000',key:'yt',format:'num'},
+    {id:'cSEO',label:'SEO (Performance Geral)',color:'#fbbf24',key:'seo',format:'num'},
+    {id:'cGMN',label:'Google Meu Negócio',color:'#d97706',key:'gmn',format:'num'}
+  ];
+
+  var gridHtml = '';
+  platformDefs.forEach(function(pd, i) {
+    gridHtml += '<div class="cc stagger-'+(i+1)+'"><h4><span class="dot" style="background:'+pd.color+'"></span>'+pd.label+
+      '<span class="chart-actions"><button class="btn-icon" onclick="exportChart(\''+pd.id+'\')" title="Baixar PNG">↓</button></span></h4>'+
+      '<canvas id="'+pd.id+'"></canvas></div>';
+  });
+  grid.innerHTML = gridHtml;
+
+  // -- Render bar charts --
+  var gridC = 'rgba(0,0,0,0.05)';
+  var tickC = '#9ca3af';
+
+  function bar(elId, labels, datasets) {
+    var c = document.getElementById(elId);
+    if (!c) return;
+    if (charts[elId]) charts[elId].destroy();
+    charts[elId] = new Chart(c.getContext('2d'), {
+      type:'bar',
+      data:{
+        labels:labels,
+        datasets:datasets.map(function(d){return{label:d.label,data:d.data,backgroundColor:d.c,borderRadius:4};})
+      },
+      options:{
+        indexAxis:'y',responsive:true,maintainAspectRatio:true,
+        animation:{duration:600,easing:'easeOutQuart'},
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{ticks:{color:tickC,font:{size:9,family:'Inter'}},grid:{color:gridC}},
+          y:{ticks:{color:tickC,font:{size:9,family:'Inter'}},grid:{color:gridC}}
+        }
+      }
+    });
+  }
+
+  function renderBarChart(elId, dataArr) {
+    var sorted = bestFirst(dataArr);
+    if (sorted.length === 0) {
+      if (charts[elId]) { charts[elId].destroy(); delete charts[elId]; }
+      return;
+    }
+    bar(elId, sorted.map(function(d){return d.p;}), [{data:sorted.map(function(d){return d.v;}),c:sorted.map(function(d){return getFullColor(d.p);})}]);
+  }
+
+  renderBarChart('cIG', so.ig);
+  renderBarChart('cFB', so.fb);
+  renderBarChart('cLI', so.li);
+  renderBarChart('cYT', so.yt);
+  renderBarChart('cSEO', seo.seo);
+  renderBarChart('cGMN', so.gmn);
+
+  // -- Ranking table --
+  var rkItems = seo.touchpoints.filter(function(d){return visiblePlayers[d.p];}).sort(function(a,b){return b.r-a.r;});
+  var rkHtml = '<table class="rk"><thead><tr><th>Player</th><th>SEO</th><th>GMN</th><th>IG</th><th>FB</th><th>LI</th><th>YT</th><th>Total</th></tr></thead><tbody>';
+  rkItems.forEach(function(it, i) {
+    var rc = i<3?' class="r'+(i+1)+'"':'';
+    rkHtml += '<tr><td'+rc+'>'+(i+1)+'. '+it.p+'</td><td>'+it.s+'</td><td>'+it.g+'</td><td>'+it.ig+'</td><td>'+formatBigNumber(it.fb)+'</td><td>'+it.li+'</td><td>'+it.yt+'</td><td><strong>'+formatBigNumber(it.r)+'</strong></td></tr>';
+  });
+  rkHtml += '</tbody></table>';
+  document.getElementById('rkTable').innerHTML = rkHtml;
+
+  // -- Stacked bar (Performance por Canal) --
+  var rpMap = {};
+  seo.performance.filter(function(d){return visiblePlayers[d.p];}).forEach(function(i){if(!rpMap[i.p])rpMap[i.p]=i;});
+  var rpItems = Object.keys(rpMap).map(function(k){return rpMap[k];}).sort(function(a,b){return b.r-a.r;});
+  var ch = [
+    {l:'SEO',k:'s',c:'#fbbf24'},{l:'GMN',k:'g',c:'#d97706'},
+    {l:'Instagram',k:'ig',c:'#e1306c'},{l:'Facebook',k:'fb',c:'#1877f2'},
+    {l:'LinkedIn',k:'li',c:'#0a66c2'},{l:'YouTube',k:'yt',c:'#ff0000'}
+  ];
+  if (charts.rk) charts.rk.destroy();
+  if (rpItems.length > 0) {
+    charts.rk = new Chart(document.getElementById('rkChart').getContext('2d'), {
+      type:'bar',
+      data:{labels:rpItems.map(function(i){return i.p;}),datasets:ch.map(function(c){return{label:c.l,data:rpItems.map(function(i){return i[c.k];}),backgroundColor:c.c};})},
+      options:{
+        responsive:true,maintainAspectRatio:true,animation:{duration:600},
+        plugins:{legend:{labels:{color:'#555',font:{size:9,family:'Inter'},boxWidth:10,padding:10}}},
+        scales:{x:{stacked:true,ticks:{color:tickC,font:{size:9,family:'Inter'}},grid:{color:gridC}},y:{stacked:true,ticks:{color:tickC,font:{size:9,family:'Inter'}},grid:{color:gridC}}}
+      }
+    });
+  }
+
+  // -- Radar --
+  if (charts.rkRadar) charts.rkRadar.destroy();
+  if (rpItems.length > 0) {
+    charts.rkRadar = new Chart(document.getElementById('rkRadar').getContext('2d'), {
+      type:'radar',
+      data:{
+        labels:['SEO','GMN','Instagram','Facebook','LinkedIn','YouTube'],
+        datasets:rpItems.map(function(p){
+          var clr = getFullColor(p.p);
+          return {label:p.p,backgroundColor:clr+(p.p==='Kaneko Imóveis'?'22':'10'),borderColor:clr,borderWidth:p.p==='Kaneko Imóveis'?2.5:1.2,pointBackgroundColor:clr,pointRadius:p.p==='Kaneko Imóveis'?4:2,data:[p.s,p.g,p.ig,p.fb,p.li,p.yt]};
+        })
+      },
+      options:{
+        responsive:true,maintainAspectRatio:true,animation:{duration:600},
+        plugins:{legend:{labels:{color:'#555',font:{size:9,family:'Inter'},boxWidth:10,padding:10},position:'bottom'}},
+        scales:{r:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.06)'},angleLines:{color:'rgba(0,0,0,0.06)'},pointLabels:{color:'#555',font:{size:9,family:'Inter'}},ticks:{color:'#999',backdropColor:'transparent',font:{size:8},maxTicksLimit:5}}}
+      }
+    });
+  }
+
+  // -- Data tables --
+  var tbl = '';
+  function makeDt(title, dotColor, arr, label2) {
+    var filtered = arr.filter(function(d){return visiblePlayers[d.p];});
+    if (filtered.length === 0) return '';
+    var sorted = filtered.slice().sort(function(a,b){return b.v-a.v;});
+    var h = '<div class="dt-sec"><h4><span class="dot" style="background:'+dotColor+'"></span>'+title+'</h4><table class="dt"><thead><tr><th>Player</th><th>'+label2+'</th></tr></thead><tbody>';
+    sorted.forEach(function(d) {
+      var isKaneko = d.p==='Kaneko Imóveis';
+      h += '<tr'+(isKaneko?' style="background:rgba(201,169,110,.08)"':'')+'><td'+(isKaneko?' style="color:#c9a96e;font-weight:700"':'')+'>'+(isKaneko?'★ ':'')+d.p+'</td><td'+(isKaneko?' style="color:#c9a96e;font-weight:700"':'')+'>'+d.v.toLocaleString('pt-BR',{maximumFractionDigits:2})+'</td></tr>';
+    });
+    h += '</tbody></table></div>';
+    return h;
+  }
+  tbl += makeDt('Instagram','#e1306c',so.ig,'Performance');
+  tbl += makeDt('Facebook','#1877f2',so.fb,'Seguidores');
+  tbl += makeDt('LinkedIn','#0a66c2',so.li,'Seguidores');
+  tbl += makeDt('YouTube','#ff0000',so.yt,'Performance');
+  tbl += makeDt('Google Meu Negócio','#d97706',so.gmn,'Performance');
+  tbl += makeDt('SEO','#fbbf24',seo.seo,'Performance Geral');
+  document.getElementById('dataTables').innerHTML = tbl;
+}
+
+/* ===================== EXPORT CSV ===================== */
+function exportCSV() {
+  if (!DATA) return;
+  var lines = ['Plataforma,Player,Valor'];
+
+  var platforms = [
+    {name:'Instagram',data:DATA.social.ig},
+    {name:'Facebook',data:DATA.social.fb},
+    {name:'LinkedIn',data:DATA.social.li},
+    {name:'YouTube',data:DATA.social.yt},
+    {name:'GMN',data:DATA.social.gmn},
+    {name:'SEO',data:DATA.seo.seo}
+  ];
+  platforms.forEach(function(pl) {
+    (pl.data||[]).forEach(function(d) {
+      lines.push(pl.name+','+d.p+','+d.v);
+    });
+  });
+
+  // Touchpoints
+  DATA.seo.touchpoints.forEach(function(p) {
+    lines.push('Touchpoints,'+p.p+','+p.r);
+  });
+
+  var blob = new Blob(['\uFEFF'+lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'kaneko-imoveis-dashboard-dados.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exportado com sucesso!', 'success');
+}
+
+/* ===================== EXPORT CHART PNG ===================== */
+function exportChart(canvasId) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  var origMaxHeight = canvas.style.maxHeight;
+  canvas.style.maxHeight = 'none';
+  setTimeout(function() {
+    var link = document.createElement('a');
+    link.download = canvasId + '.png';
+    link.href = canvas.toDataURL('image/png', 1.0);
+    link.click();
+    canvas.style.maxHeight = origMaxHeight;
+    showToast('Gráfico exportado como PNG!', 'success');
+  }, 100);
+}
+
+/* ===================== TOAST ===================== */
+function showToast(msg, type) {
+  var existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  var el = document.createElement('div');
+  el.className = 'toast ' + (type || '');
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(function() { el.remove(); }, 3000);
+}
+
+/* ===================== INIT ===================== */
+render();
+setTimeout(function() {
+  document.getElementById('loader').classList.add('hidden');
+}, 300);
+
+document.getElementById('btnExport').addEventListener('click', exportCSV);
+</script>
+</body>
+</html>
